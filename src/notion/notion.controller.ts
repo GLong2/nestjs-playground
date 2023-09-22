@@ -1,12 +1,27 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { NotionService } from './notion.service';
 
 @Controller('notion')
 export class NotionController {
   constructor(private readonly notionService: NotionService) {}
 
-  @Get('pages')
-  async fetchPages() {
-    return await this.notionService.fetchPages();
+  @Get('employee/get')
+  async selectEmployee() {
+    return await this.notionService.selectEmployee();
+  }
+
+  @Post('employee/add')
+  async createEmployee(@Body() createEmployeeDto: any) {
+    return await this.notionService.createEmployee(createEmployeeDto);
+  }
+
+  @Patch('employee/update/:id')
+  async updateEmployee(@Param('id') id: string, @Body() updateEmployeeDto: any) {
+    return await this.notionService.updateEmployee(id, updateEmployeeDto);
+  }
+
+  @Delete('employee/remove/:id')
+  async removeEmployee(@Param('id') id: string) {
+    return await this.notionService.removeEmployee(id);
   }
 }
