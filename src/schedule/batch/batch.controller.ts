@@ -1,4 +1,4 @@
-import { Controller, Inject, LoggerService, Post } from '@nestjs/common';
+import { Controller, Get, Inject, LoggerService, Post } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 
 @Controller('batches')
@@ -7,6 +7,11 @@ export class BatchController {
     @Inject('BatchControllerLogger') private readonly logger: LoggerService,
     private scheduler: SchedulerRegistry,
   ) {}
+
+  @Get('/test')
+  async selectEmployee() {
+    return `Hello World!!`;
+  }
 
   @Post('/start-sample')
   start() {

@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  playground:
+    container_name: playground
+    image: playground:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - 3000
+
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - 3000:3000
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on: # 해당 서비스가 시작되기 전에 다른 서비스가 먼저 시작되어야 함을 지정
+      - playground
