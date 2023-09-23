@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, LoggerService } from '@nestjs/common';
+import { Inject, Injectable, LoggerService } from '@nestjs/common';
 import { Client } from '@notionhq/client';
 import { numberProperty, richTextProperty, titleProperty } from './helpers/properties.helper';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -6,7 +6,7 @@ import { UpdateEmployeeDto } from './dto/update-employee.dto ';
 
 @Injectable()
 export class NotionService {
-  constructor(@Inject(Logger) private readonly logger: LoggerService) {}
+  constructor(@Inject('NotionServiceLogger') private readonly logger: LoggerService) {}
 
   private notion = new Client({ auth: process.env.NOTION_TOKEN });
   private readonly databaseId = process.env.NOTION_DATABASE_ID;

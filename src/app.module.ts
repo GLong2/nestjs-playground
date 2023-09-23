@@ -1,7 +1,7 @@
-import { Logger, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { NotionController } from './notion/notion.controller';
-import { NotionService } from './notion/notion.service';
+import { LoggingModule } from './interceptors/logging/logging.module';
+import { NotionModule } from './notion/notion.module';
 
 @Module({
   imports: [
@@ -10,8 +10,10 @@ import { NotionService } from './notion/notion.service';
       load: [],
       isGlobal: true,
     }),
+    LoggingModule,
+    NotionModule,
   ],
-  controllers: [NotionController],
-  providers: [NotionService, Logger],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
