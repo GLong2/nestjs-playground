@@ -3,6 +3,7 @@ import { Client } from '@notionhq/client';
 import { numberProperty, richTextProperty, titleProperty } from './helpers/properties.helper';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto ';
+import { transformData } from './helpers/objectConvertor.helper';
 
 @Injectable()
 export class NotionService {
@@ -16,7 +17,8 @@ export class NotionService {
       const response: any = await this.notion.databases.query({
         database_id: this.databaseId,
       });
-      return response.results;
+      const outputData = transformData(response.results);
+      return outputData;
     } catch (error) {
       this.logger.error(error, error.stack);
       throw error;
