@@ -6,6 +6,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { consoleTransport, fileTransport } from './winston.config';
 import { WinstonModule } from 'nest-winston';
 import { NotionModule } from './notion/notion.module';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -23,7 +25,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder().setTitle('My API').setDescription('My API description').setVersion('1.0').build();
   const document = SwaggerModule.createDocument(app, config, {
-    include: [NotionModule],
+    include: [NotionModule, AuthModule, UserModule],
   });
   SwaggerModule.setup('api-docs', app, document);
 

@@ -16,9 +16,9 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./mariaDB/data:/var/lib/mysql
-      - ./mariaDB/conf.d:/etc/mysql/conf.d
-      - ./mariaDB/initdb.d:/docker-entrypoint-initdb.d
+      - volume-db-data:/var/lib/mysql
+      - volume-db-config:/etc/mysql/conf.d
+      - volume-initdb:/docker-entrypoint-initdb.d
     environment:
       TZ: Asia/Seoul
     env_file: ./src/config/env/.production.env
@@ -34,3 +34,23 @@ services:
       - /etc/letsencrypt/:/etc/letsencrypt/  # 이 경로를 마운트
     depends_on: # 해당 서비스가 시작되기 전에 다른 서비스가 먼저 시작되어야 함을 지정
       - playground
+
+volumes:
+  volume-initdb:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/mariaDB/initdb.d
+      o: bind
+  volume-db-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/mariaDB/data
+      o: bind
+  volume-db-config:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/mariaDB/conf.d
+      o: bind
