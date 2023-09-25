@@ -2,6 +2,7 @@ import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { combHelloHtml } from './helper/auth.helper';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -19,44 +20,20 @@ export class AuthController {
   googleLoginCallback(@Req() req) {
     // 구글 인증 후 콜백 처리
     // JWT 발행 또는 다른 페이지로 리다이렉트 등
-    return `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-          <meta charset="UTF-8">
-          <title>환영합니다!</title>
-          <style>
-              @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(20px); }
-                to { opacity: 1; transform: translateY(0); }
-              }
+    return combHelloHtml(req.user.email);
+  }
 
-              body {
-                font-family: 'Arial', sans-serif;
-                background-color: #f9f9f9;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                overflow: hidden;    
-              }
+  @Get('kakao')
+  @UseGuards(AuthGuard('kakao'))
+  kakaoLogin() {
+    // 여기로 리다이렉트되지 않음
+  }
 
-              .welcome-message {
-                background-color: #ffffff;
-                padding: 30px; 
-                border-radius: 8px;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                font-size: 48px;
-                animation: fadeIn 1s ease-out forwards;
-              }
-          </style>
-      </head>
-      <body>
-          <div class="welcome-message">
-              ${req.user.email}님 환영합니다.
-          </div>
-      </body>
-      </html>
-    `;
+  @Get('kakao/callback')
+  @UseGuards(AuthGuard('kakao'))
+  kakaoLoginCallback(@Req() req) {
+    // 로그인 성공 후의 동작
+    // 예를 들어: 토큰 발급 및 리다이렉트
+    return combHelloHtml(req.user.nickname);
   }
 }
