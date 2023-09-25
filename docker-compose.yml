@@ -10,6 +10,19 @@ services:
     expose:
       - 3000
 
+  database:
+    container_name: database
+    image: mariadb:latest
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mariaDB/data:/var/lib/mysql
+      - ./mariaDB/conf.d:/etc/mysql/conf.d
+      - ./mariaDB/initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      TZ: Asia/Seoul
+    env_file: ./src/config/env/.production.env
+
   nginx:
     container_name: nginx
     image: nginx:latest
