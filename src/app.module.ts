@@ -18,7 +18,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     TypeOrmModule.forRoot({
       type: 'mariadb',
       port: 3306,
-      host: process.env.MYSQL_HOST,
+      // docker-compose.yml 파일에서 MariaDB 서비스의 이름이 database라면, NestJS 애플리케이션의 데이터베이스 연결 설정에서 호스트를 127.0.0.1 대신 database로 지정
+      host: process.env.NODE_ENV === 'production' ? 'database' : process.env.MYSQL_HOST,
       username: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
