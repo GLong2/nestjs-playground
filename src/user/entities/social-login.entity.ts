@@ -1,13 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { UserEntity } from './user.entity';
+import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne } from 'typeorm';
+import { User } from './user.entity';
 
 @Entity('social_login')
-export class SocialLoginEntity {
+export class SocialLogin {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true, comment: '고유 식별 값' })
   social_login_id: number;
-
-  @Column({ type: 'int', unsigned: true, comment: '유저 번호' })
-  user_no: number;
 
   @Column({ type: 'tinyint', unsigned: true, comment: '1: apple, 2: google, 3: facebook, 4: kakao, 5: naver' })
   social_code: number;
@@ -21,7 +18,7 @@ export class SocialLoginEntity {
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP', comment: '갱신일자' })
   update_date: Date;
 
-  @ManyToOne(() => UserEntity, (user) => user.socialLogins)
+  @OneToOne(() => User, (user) => user.socialLogin)
   @JoinColumn({ name: 'user_no' })
-  user: UserEntity;
+  user: User;
 }

@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { SocialLoginEntity } from './social-login.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+import { SocialLogin } from './social-login.entity';
+import { Password } from './password.entity';
 
 @Entity('user')
-export class UserEntity {
+export class User {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true, comment: '회원번호' })
   user_no: number;
 
@@ -12,6 +13,9 @@ export class UserEntity {
   @Column({ type: 'tinyint', unsigned: true, default: 0, comment: '0: id-pw, 1: social login' })
   login_type: number;
 
-  @OneToMany(() => SocialLoginEntity, (socialLogin) => socialLogin.user)
-  socialLogins: SocialLoginEntity[];
+  @OneToOne(() => SocialLogin, (socialLogin) => socialLogin.user)
+  socialLogin: SocialLogin;
+
+  @OneToOne(() => Password, (password) => password.user)
+  password: Password;
 }

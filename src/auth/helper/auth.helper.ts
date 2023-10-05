@@ -1,4 +1,4 @@
-export function combHelloHtml(userName: string) {
+export function combHelloHtml(userName: string, social_code: string) {
   return `
       <!DOCTYPE html>
       <html lang="en">
@@ -34,7 +34,7 @@ export function combHelloHtml(userName: string) {
       <body>
           <div class="welcome-message">
               ${userName}님 환영합니다.<br>hong-ground 웹 서비스를<br>준비중입니다.
-              <a href="/auth/logout">Kakao Logout</a>
+              <a href="/auth/logout/${social_code}">Logout</a>
           </div>
       </body>
       </html>
