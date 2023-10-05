@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS user (
     user_no INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '회원번호',
-    user_name VARCHAR(20) NOT NULL UNIQUE COMMENT '서비스내에서 사용하는 유저명(ID로 로그인 한다면 실제 ID값)',
+    user_name VARCHAR(50) NOT NULL UNIQUE COMMENT '서비스내에서 사용하는 유저명(ID로 로그인 한다면 실제 ID값)',
     login_type TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '0: id-pw, 1: social login'
 );
 

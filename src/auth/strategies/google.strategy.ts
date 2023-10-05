@@ -16,13 +16,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   async validate(accessToken: string, refreshToken: string, profile: any, done) {
     // 사용자 정보를 데이터베이스와 일치시키거나 사용자 생성
     // profile 객체에는 사용자의 Google 정보가 포함
-    const { name, emails, photos } = profile;
+    const { id, name, emails, provider } = profile;
     const user = {
+      id: id,
       email: emails[0].value,
       firstName: name.givenName,
       lastName: name.familyName,
-      picture: photos[0].value,
-      accessToken,
+      provider: provider,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
     };
     done(null, user);
   }

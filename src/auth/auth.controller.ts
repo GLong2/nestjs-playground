@@ -1,13 +1,28 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { combHelloHtml } from './helper/auth.helper';
+import { UserService } from '../user/user.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly userService: UserService) {}
+
+  @Get('logout')
+  logout(@Req() req, @Res() res) {
+    console.log();
+    const redirectURL = 'http://localhost:3000/auth/kakao/logout/callback';
+    const kakaoLogoutUrl = `https://kauth.kakao.com/oauth/logout?client_id=${process.env.KAKAO_CLIENT_ID}&logout_redirect_uri=${redirectURL}`;
+    return res.redirect(kakaoLogoutUrl);
+    // if (req.url.indexOf('google') > -1) {
+    //   console.log('google logout');
+    // } else if (req.url.indexOf('kakao') > -1) {
+    //   const redirectURL = 'http://localhost:3000/auth/kakao/logout/callback';
+    //   const kakaoLogoutUrl = `https://kauth.kakao.com/oauth/logout?client_id=${process.env.KAKAO_CLIENT_ID}&logout_redirect_uri=${redirectURL}`;
+    //   return res.redirect(kakaoLogoutUrl);
+    // }
+  }
 
   @Get('google')
   @UseGuards(AuthGuard('google'))
@@ -17,10 +32,11 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  googleLoginCallback(@Req() req) {
+  async googleLoginCallback(@Req() req) {
     // 구글 인증 후 콜백 처리
     // JWT 발행 또는 다른 페이지로 리다이렉트 등
-    return combHelloHtml(req.user.email);
+    const user: any = await this.userService.socialLogin(req.user);
+    return combHelloHtml(user.user_name);
   }
 
   @Get('kakao')
@@ -31,9 +47,16 @@ export class AuthController {
 
   @Get('kakao/callback')
   @UseGuards(AuthGuard('kakao'))
-  kakaoLoginCallback(@Req() req) {
+  async kakaoLoginCallback(@Req() req) {
     // 로그인 성공 후의 동작
     // 예를 들어: 토큰 발급 및 리다이렉트
-    return combHelloHtml(req.user.nickname);
+    const user: any = await this.userService.socialLogin(req.user);
+    return combHelloHtml(user.user_name);
+  }
+
+  @Get('logout/callback')
+  kakaoLogoutCallback(@Req() req, @Res() res) {
+    // 로그아웃 처리 후의 로직 (예: 홈페이지로 리다이렉트)
+    return res.redirect('/kakao');
   }
 }

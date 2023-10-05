@@ -34,6 +34,7 @@ export function combHelloHtml(userName: string) {
       <body>
           <div class="welcome-message">
               ${userName}님 환영합니다.<br>hong-ground 웹 서비스를<br>준비중입니다.
+              <a href="/auth/logout">Kakao Logout</a>
           </div>
       </body>
       </html>
