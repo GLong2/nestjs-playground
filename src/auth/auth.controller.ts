@@ -3,7 +3,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { combHelloHtml } from './helper/auth.helper';
 import { UserService } from '../user/user.service';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -62,8 +61,8 @@ export class AuthController {
       user_name: body.email,
       login_type: 0,
     };
-    const user = await this.userService.create(createUserDto, body.password);
-    return user;
+    const result = await this.userService.create(createUserDto, body.password);
+    return result;
   }
 
   @Post('login')

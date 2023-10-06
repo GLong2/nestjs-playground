@@ -118,7 +118,7 @@ export class UserService {
       const existedUser = await this.checkUserID(createUserDto.user_name);
 
       if (existedUser && existedUser.login_type === 0) {
-        return existedUser;
+        throw new InternalServerErrorException('해당 Email은 이미 가입되어 있습니다.');
       } else if (existedUser && existedUser.login_type === 1) {
         throw new InternalServerErrorException('해당 Email은 이미 다른 로그인 방식으로 가입되어 있습니다.');
       }
@@ -135,7 +135,7 @@ export class UserService {
       password.user = createdUser;
       await manager.save(password);
 
-      return createdUser;
+      return '정상적으로 생성 되었습니다.';
     });
 
     return result;
@@ -147,7 +147,7 @@ export class UserService {
     return `This action returns a #${id} user`;
   }
   update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+    return `This action updates a #${updateUserDto} user`;
   }
   remove(id: number) {
     return `This action removes a #${id} user`;
