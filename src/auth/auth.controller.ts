@@ -33,7 +33,7 @@ export class AuthController {
     // JWT 발행 또는 다른 페이지로 리다이렉트 등
     const result = await this.userService.socialLogin(req.user);
     res.cookie('auth_token', result.accessToken, { httpOnly: true, secure: true });
-    return res.redirect('https://hong-ground.com/api/auth/google');
+    return res.redirect('https://hong-ground.com/auth/google');
   }
 
   @Get('kakao')
@@ -49,7 +49,7 @@ export class AuthController {
     // 예를 들어: 토큰 발급 및 리다이렉트
     const result = await this.userService.socialLogin(req.user);
     res.cookie('auth_token', result.accessToken, { httpOnly: true, secure: true });
-    return res.redirect('https://hong-ground.com/api/auth/kakao');
+    return res.redirect('https://hong-ground.com/auth/kakao');
   }
 
   @Get('kakao/logout/callback')
