@@ -59,15 +59,17 @@ export class AuthController {
   @Post('signup')
   async signUp(@Body() body: { email: string; password: string }) {
     // DB에 사용자 정보를 저장하십시오.
-    const user = {
+    const createUserDto = {
       user_name: body.email,
       login_type: 0,
     };
-    await this.userService.create(user, body.password);
+    const user = await this.userService.create(createUserDto, body.password);
+    return user;
   }
 
   @Post('login')
   async login(@Body() body: { email: string; password: string }) {
-    const user: any = await this.userService.login(body.email, body.password);
+    const { user, accessToken } = await this.userService.login(body.email, body.password);
+    return { user, accessToken };
   }
 }

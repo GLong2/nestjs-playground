@@ -49,8 +49,6 @@ export class UserService {
   }
 
   async login(email: string, password: string) {
-    // 사용자 검증 및 JWT 발급 로직을 여기에 추가해야 합니다.
-    // 예시: DB에서 사용자를 찾아서 비밀번호를 비교하고, 일치하면 JWT를 발급합니다.
     const user = await this.checkUserID(email);
 
     if (!user) {
@@ -67,7 +65,7 @@ export class UserService {
     const isValidPassword = await this.comparePasswords(password, exitedPassword.password);
     if (isValidPassword) {
       const token = await this.createToken(email);
-      return { accessToken: token };
+      return { user: user, accessToken: token };
     } else {
       throw new InternalServerErrorException('email 또는 비밀번호가 일치하지 않습니다..');
     }
@@ -87,13 +85,17 @@ export class UserService {
 
   async createToken(email: string) {
     const payload = { email };
-    return this.jwtService.sign(payload, { secret: process.env.JWT_KEY });
+    return this.jwtService.sign(payload, { secret: process.env.JWT_KEY, expiresIn: '60m' });
   }
 
   async validateUser(payload: any): Promise<any> {
-    // 이 예제에서는 실제 사용자 정보가 없으므로 간단하게 payload를 반환합니다.
-    // 실제로는 DB에서 사용자를 찾아 검증해야 합니다.
-    return payload;
+    const user = await this.checkUserID(payload.email);
+
+    if (!user) {
+      throw new InternalServerErrorException('해당 사용자는 존재하지 않는 사용자입니다.');
+    }
+
+    return user;
   }
 
   async hashPassword(password: string): Promise<any> {
@@ -135,7 +137,7 @@ export class UserService {
     return result;
   }
   findAll() {
-    return `This action returns all user`;
+    return this.usersRepository.find();
   }
   findOne(id: number) {
     return `This action returns a #${id} user`;
