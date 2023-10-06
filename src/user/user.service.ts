@@ -7,7 +7,7 @@ import { SocialLogin } from './entities/social-login.entity';
 import { DataSource, Repository } from 'typeorm';
 import { getSocialCode } from './helper/user.helper';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { Password } from './entities/password.entity';
 
 @Injectable()

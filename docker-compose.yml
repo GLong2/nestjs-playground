@@ -1,9 +1,9 @@
 version: '3'
 
 services:
-  playground: # Docker Compose 내에서 서비스 이름은 DNS 이름으로 동작
-    container_name: playground
-    image: playground:latest
+  playground-server: # Docker Compose 내에서 서비스 이름은 DNS 이름으로 동작
+    container_name: playground-server
+    image: playground-server:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,6 +11,15 @@ services:
       - 3000
     depends_on:
       - database
+
+  playground-web:
+    container_name: playground-web
+    image: playground-web:latest
+    build:
+      context: ../react-playground/
+      dockerfile: Dockerfile
+    expose:
+      - 4000
 
   database:
     container_name: database
@@ -35,7 +44,8 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - /etc/letsencrypt/:/etc/letsencrypt/  # 이 경로를 마운트
     depends_on: # 해당 서비스가 시작되기 전에 다른 서비스가 먼저 시작되어야 함을 지정
-      - playground
+      - playground-server
+      - playground-web
 
 volumes:
   volume-initdb:
