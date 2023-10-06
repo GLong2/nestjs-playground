@@ -10,7 +10,7 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     super({
       clientID: process.env.KAKAO_CLIENT_ID,
       clientSecret: process.env.KAKAO_CLIENT_SECRET,
-      callbackURL: process.env.NODE_ENV === 'production' ? 'https://hong-ground.com/auth/kakao/callback' : 'http://localhost:3000/auth/kakao/callback',
+      callbackURL: process.env.NODE_ENV === 'production' ? 'https://hong-ground.com/api/auth/kakao/callback' : 'http://localhost:3000/auth/kakao/callback',
       scope: ['account_email'],
       passReqToCallback: true,
     });

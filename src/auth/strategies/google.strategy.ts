@@ -8,7 +8,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: process.env.GOOGLE_CLIENT_ID, // .env 또는 설정에서 가져온다
       clientSecret: process.env.GOOGLE_CLIENT_SECRET, // .env 또는 설정에서 가져온다
-      callbackURL: process.env.NODE_ENV === 'production' ? 'https://hong-ground.com/auth/google/callback' : 'http://localhost:3000/auth/google/callback',
+      callbackURL: process.env.NODE_ENV === 'production' ? 'https://hong-ground.com/api/auth/google/callback' : 'http://localhost:3000/auth/google/callback',
       scope: ['email', 'profile'],
     });
   }

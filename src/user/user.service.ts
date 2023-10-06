@@ -25,7 +25,12 @@ export class UserService {
       const existedUser = await this.checkUserID(loginData.email);
 
       if (existedUser && existedUser.login_type === 1) {
-        return existedUser;
+        const existedSocialLogin = await this.socialLoginRepository.findOne({
+          where: {
+            user: { user_no: existedUser.user_no },
+          },
+        });
+        return existedSocialLogin.access_token;
       } else if (existedUser && existedUser.login_type === 0) {
         throw new InternalServerErrorException('해당 Email은 이미 다른 로그인 방식으로 가입되어 있습니다.');
       }
@@ -42,12 +47,12 @@ export class UserService {
       socialLogin.access_token = loginData.accessToken;
       socialLogin.user = createdUser;
 
-      await manager.save(socialLogin);
+      const createdSocialLogin = await manager.save(socialLogin);
 
-      return createdUser;
+      return createdSocialLogin.access_token;
     });
 
-    return result;
+    return { accessToken: result };
   }
 
   async login(email: string, password: string) {

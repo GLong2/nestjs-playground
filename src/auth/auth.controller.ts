@@ -14,7 +14,7 @@ export class AuthController {
     if (socialType.indexOf('google') > -1) {
       // TODO
     } else if (socialType.indexOf('kakao') > -1) {
-      const redirectURL = process.env.NODE_ENV === 'production' ? 'https://hong-ground.com/auth/kakao/logout/callback' : 'http://localhost:3000/auth/kakao/logout/callback';
+      const redirectURL = process.env.NODE_ENV === 'production' ? 'https://hong-ground.com/api/auth/kakao/logout/callback' : 'http://localhost:3000/auth/kakao/logout/callback';
       const kakaoLogoutUrl = `https://kauth.kakao.com/oauth/logout?client_id=${process.env.KAKAO_CLIENT_ID}&logout_redirect_uri=${redirectURL}`;
       return res.redirect(kakaoLogoutUrl);
     }
@@ -28,11 +28,12 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleLoginCallback(@Req() req) {
+  async googleLoginCallback(@Req() req, @Res() res) {
     // 구글 인증 후 콜백 처리
     // JWT 발행 또는 다른 페이지로 리다이렉트 등
-    const user: any = await this.userService.socialLogin(req.user);
-    return combHelloHtml(user.user_name, 'google');
+    const result = await this.userService.socialLogin(req.user);
+    res.cookie('auth_token', result.accessToken, { httpOnly: true, secure: true });
+    return res.redirect('https://localhost/auth/google');
   }
 
   @Get('kakao')
@@ -43,16 +44,17 @@ export class AuthController {
 
   @Get('kakao/callback')
   @UseGuards(AuthGuard('kakao'))
-  async kakaoLoginCallback(@Req() req) {
+  async kakaoLoginCallback(@Req() req, @Res() res) {
     // 로그인 성공 후의 동작
     // 예를 들어: 토큰 발급 및 리다이렉트
-    const user: any = await this.userService.socialLogin(req.user);
-    return combHelloHtml(user.user_name, 'kakao');
+    const result = await this.userService.socialLogin(req.user);
+    res.cookie('auth_token', result.accessToken, { httpOnly: true, secure: true });
+    return res.redirect('https://localhost/auth/kakao');
   }
 
   @Get('kakao/logout/callback')
   kakaoLogoutCallback(@Req() req, @Res() res) {
-    return res.redirect('/auth/kakao');
+    return res.redirect('https://localhost');
   }
 
   @Post('signup')
