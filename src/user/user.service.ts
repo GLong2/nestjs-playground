@@ -24,8 +24,10 @@ export class UserService {
     const result = await this.dataSource.transaction(async (manager) => {
       const existedUser = await this.checkUserID(loginData.email);
 
-      if (existedUser) {
+      if (existedUser && existedUser.login_type === 1) {
         return existedUser;
+      } else if (existedUser && existedUser.login_type === 0) {
+        throw new InternalServerErrorException('해당 Email은 이미 다른 로그인 방식으로 가입되어 있습니다.');
       }
 
       const user = new User();
@@ -65,9 +67,9 @@ export class UserService {
     const isValidPassword = await this.comparePasswords(password, exitedPassword.password);
     if (isValidPassword) {
       const token = await this.createToken(email);
-      return { user: user, accessToken: token };
+      return token;
     } else {
-      throw new InternalServerErrorException('email 또는 비밀번호가 일치하지 않습니다..');
+      throw new InternalServerErrorException('email 또는 비밀번호가 일치하지 않습니다.');
     }
   }
 
@@ -115,8 +117,10 @@ export class UserService {
     const result = await this.dataSource.transaction(async (manager) => {
       const existedUser = await this.checkUserID(createUserDto.user_name);
 
-      if (existedUser) {
-        throw new InternalServerErrorException('해당 사용자는 이미 존재하는 사용자입니다.');
+      if (existedUser && existedUser.login_type === 0) {
+        return existedUser;
+      } else if (existedUser && existedUser.login_type === 1) {
+        throw new InternalServerErrorException('해당 Email은 이미 다른 로그인 방식으로 가입되어 있습니다.');
       }
 
       const user = new User();
