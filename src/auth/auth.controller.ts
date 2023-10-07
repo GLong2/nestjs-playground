@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { combHelloHtml } from './helper/auth.helper';
 import { UserService } from '../user/user.service';
 
 @ApiTags('auth')
@@ -32,8 +31,9 @@ export class AuthController {
     // 구글 인증 후 콜백 처리
     // JWT 발행 또는 다른 페이지로 리다이렉트 등
     const result = await this.userService.socialLogin(req.user);
-    res.cookie('auth_token', result.accessToken, { httpOnly: true, secure: true });
-    return res.redirect('https://hong-ground.com/auth/google');
+    // res.cookie('auth_token', result.accessToken, { httpOnly: true, secure: true });
+    const redirectURL = process.env.NODE_ENV === 'production' ? `https://hong-ground.com/social?token=${result.accessToken}&redirect=home` : `http://localhost:4000/social?token=${result.accessToken}&redirect=home`;
+    return res.redirect(redirectURL);
   }
 
   @Get('kakao')
@@ -48,13 +48,15 @@ export class AuthController {
     // 로그인 성공 후의 동작
     // 예를 들어: 토큰 발급 및 리다이렉트
     const result = await this.userService.socialLogin(req.user);
-    res.cookie('auth_token', result.accessToken, { httpOnly: true, secure: true });
-    return res.redirect('https://hong-ground.com/auth/kakao');
+    // res.cookie('auth_token', result.accessToken, { httpOnly: true, secure: true });
+    const redirectURL = process.env.NODE_ENV === 'production' ? `https://hong-ground.com/social?token=${result.accessToken}&redirect=home` : `http://localhost:4000/social?token=${result.accessToken}&redirect=home`;
+    return res.redirect(redirectURL);
   }
 
   @Get('kakao/logout/callback')
   kakaoLogoutCallback(@Req() req, @Res() res) {
-    return res.redirect('https://localhost');
+    const redirectURL = process.env.NODE_ENV === 'production' ? `https://hong-ground.com/` : `http://localhost:4000/`;
+    return res.redirect(redirectURL);
   }
 
   @Post('signup')

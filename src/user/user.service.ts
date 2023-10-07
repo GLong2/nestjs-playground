@@ -90,6 +90,22 @@ export class UserService {
     return user;
   }
 
+  async checkEmail(email: string) {
+    if (!email) {
+      throw new InternalServerErrorException('email을 입력해주세요.');
+    }
+
+    const user = await this.usersRepository.findOne({
+      where: { user_name: email },
+    });
+
+    if (!user) {
+      return null;
+    } else {
+      throw new InternalServerErrorException('해당 email은 이미 존재하는 email입니다.');
+    }
+  }
+
   async createToken(email: string) {
     const payload = { email };
     return this.jwtService.sign(payload, { secret: process.env.JWT_KEY, expiresIn: '60m' });

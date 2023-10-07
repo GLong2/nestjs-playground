@@ -15,6 +15,11 @@ export class UserController {
     // return this.userService.create(createUserDto);
   }
 
+  @Post('checkEmail')
+  checkEmail(@Body() body) {
+    return this.userService.checkEmail(body.email);
+  }
+
   @Get()
   @UseGuards(AuthGuard('local'))
   findAll() {
