@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
 import { SocialLogin } from './social-login.entity';
 import { Password } from './password.entity';
+import { UserProfile } from './user-profile.entity';
 
 @Entity('user')
 export class User {
@@ -18,4 +19,7 @@ export class User {
 
   @OneToOne(() => Password, (password) => password.user)
   password: Password;
+
+  @OneToOne(() => UserProfile, (user_profile) => user_profile.user)
+  user_profile: UserProfile;
 }
