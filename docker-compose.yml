@@ -12,15 +12,6 @@ services:
     depends_on:
       - database
 
-  playground-web:
-    container_name: playground-web
-    image: playground-web:latest
-    build:
-      context: ../react-playground/
-      dockerfile: Dockerfile
-    expose:
-      - 4000
-
   database:
     container_name: database
     image: mariadb:latest
@@ -45,7 +36,6 @@ services:
       - /etc/letsencrypt/:/etc/letsencrypt/  # 이 경로를 마운트
     depends_on: # 해당 서비스가 시작되기 전에 다른 서비스가 먼저 시작되어야 함을 지정
       - playground-server
-      - playground-web
 
 volumes:
   volume-initdb:
