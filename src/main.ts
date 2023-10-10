@@ -6,6 +6,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { consoleTransport, fileTransport } from './winston.config';
 import { WinstonModule } from 'nest-winston';
 import { NotionModule } from './notion/notion.module';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -21,9 +23,9 @@ async function bootstrap() {
   // "public" 폴더에서 정적 파일을 제공
   app.use('/', express.static('public'));
 
-  const config = new DocumentBuilder().setTitle('My API').setDescription('My API description').setVersion('1.0').build();
+  const config = new DocumentBuilder().setTitle('My API').setDescription('My API description').setVersion('1.0').addBearerAuth().build();
   const document = SwaggerModule.createDocument(app, config, {
-    include: [NotionModule],
+    include: [NotionModule, UserModule, AuthModule],
   });
   SwaggerModule.setup('api-docs', app, document);
 

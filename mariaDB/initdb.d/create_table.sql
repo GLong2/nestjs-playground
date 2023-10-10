@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS social_login (
     FOREIGN KEY (user_no) REFERENCES user(user_no) on update cascade on delete cascade
 );
 
-CREATE TABLE IF NOT EXISTS password (
+CREATE TABLE IF NOT EXISTS user_password (
     password_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT '고유 식별 값',
     user_no INT UNSIGNED NOT NULL COMMENT '유저 번호',
     salt VARCHAR(128) NOT NULL COMMENT 'hash 값',

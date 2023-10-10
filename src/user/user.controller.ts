@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiTags } from '@nestjs/swagger';
-import { CreateUserDto } from './dto/create-user.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -10,33 +9,37 @@ import { AuthGuard } from '@nestjs/passport';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    // return this.userService.create(createUserDto);
-  }
-
   @Post('checkEmail')
+  @UseGuards(AuthGuard('local'))
+  @ApiBearerAuth()
   checkEmail(@Body() body) {
     return this.userService.checkEmail(body.email);
   }
 
   @Get()
   @UseGuards(AuthGuard('local'))
+  @ApiBearerAuth()
   findAll() {
     return this.userService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard('local'))
+  @ApiBearerAuth()
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard('local'))
+  @ApiBearerAuth()
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard('local'))
+  @ApiBearerAuth()
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
   }

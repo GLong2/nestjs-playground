@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, UpdateDateColumn, OneToOne } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity('password')
-export class Password {
+@Entity('user_password')
+export class UserPassword {
   @PrimaryGeneratedColumn({ type: 'int', unsigned: true, comment: '고유값' })
   password_id: number;
 

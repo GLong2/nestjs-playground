@@ -16,7 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'local') {
   async validate(payload: any) {
     const user = await this.userService.validateUser(payload);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('사용자 인증에 문제가 발생했습니다.');
     }
     return user;
   }
