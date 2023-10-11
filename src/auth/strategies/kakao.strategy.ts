@@ -1,16 +1,16 @@
-// kakao.strategy.ts
-
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-kakao';
 import { Injectable } from '@nestjs/common';
+import { UserService } from '../../user/user.service';
+import * as uuid from 'uuid';
 
 @Injectable()
 export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
-  constructor() {
+  constructor(private readonly userService: UserService) {
     super({
       clientID: process.env.KAKAO_CLIENT_ID,
       clientSecret: process.env.KAKAO_CLIENT_SECRET,
-      callbackURL: process.env.NODE_ENV === 'production' ? 'https://hong-ground.com/api/auth/kakao/callback' : 'http://localhost:3000/auth/kakao/callback',
+      callbackURL: `${process.env.BASE_PATH}/api/auth/kakao/callback`,
       scope: ['account_email'],
       passReqToCallback: true,
     });
@@ -23,12 +23,16 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
       email: profile._json.kakao_account.email,
       username: profile.username,
       provider: profile.provider,
-      accessToken: accessToken,
-      refreshToken: refreshToken,
+      jti: null,
+      jwt: null,
       // email: profile._json && profile._json.kaccount_email,
       // profileImage: profile._json && profile._json.properties.profile_image,
     };
-
+    const jti = uuid.v4();
+    const loginType = 1;
+    const jwt = await this.userService.createToken(user.email, loginType, jti);
+    user.jti = jti;
+    user.jwt = jwt;
     done(null, user);
   }
 }

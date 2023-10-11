@@ -12,8 +12,8 @@ export class SocialLogin {
   @Column({ type: 'varchar', length: 64, comment: 'oauth_external_id' })
   external_id: string;
 
-  @Column({ type: 'varchar', length: 256, comment: 'access token' })
-  access_token: string;
+  @Column({ type: 'varchar', length: 256, comment: 'jti' })
+  jti: string;
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP', comment: '갱신일자' })
   update_date: Date;

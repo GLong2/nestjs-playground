@@ -19,11 +19,11 @@ export class CreateSocialLoginDto {
   @Length(1, 64)
   external_id: string;
 
-  @ApiProperty({ description: 'access token', maxLength: 256 })
+  @ApiProperty({ description: 'jti', maxLength: 256 })
   @IsString()
   @IsNotEmpty()
   @Length(1, 256)
-  access_token: string;
+  jti: string;
 
   // `update_date`는 자동으로 생성되는 필드이므로 DTO에 포함하지 않음
 

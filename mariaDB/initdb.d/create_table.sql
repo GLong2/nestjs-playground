@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS social_login (
     user_no INT UNSIGNED NOT NULL COMMENT '유저 번호',
     social_code TINYINT UNSIGNED NOT NULL COMMENT '1: apple, 2: google, 3: facebook, 4: kakao, 5: naver',
     external_id VARCHAR(64) NOT NULL COMMENT 'oauth_external_id',
-    access_token VARCHAR(256) NOT NULL COMMENT 'access token',
+    jti VARCHAR(256) NOT NULL COMMENT 'jti',
     update_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '갱신일자',
     FOREIGN KEY (user_no) REFERENCES user(user_no) on update cascade on delete cascade
 );

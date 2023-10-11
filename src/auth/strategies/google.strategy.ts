@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-google-oauth20';
+import { UserService } from '../../user/user.service';
+import * as uuid from 'uuid';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-  constructor() {
+  constructor(private readonly userService: UserService) {
     super({
       clientID: process.env.GOOGLE_CLIENT_ID, // .env 또는 설정에서 가져온다
       clientSecret: process.env.GOOGLE_CLIENT_SECRET, // .env 또는 설정에서 가져온다
-      callbackURL: process.env.NODE_ENV === 'production' ? 'https://hong-ground.com/api/auth/google/callback' : 'http://localhost:3000/auth/google/callback',
+      callbackURL: `${process.env.BASE_PATH}/api/auth/google/callback`,
       scope: ['email', 'profile'],
     });
   }
@@ -23,9 +25,14 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       firstName: name.givenName,
       lastName: name.familyName,
       provider: provider,
-      accessToken: accessToken,
-      refreshToken: refreshToken,
+      jti: null,
+      jwt: null,
     };
+    const jti = uuid.v4();
+    const loginType = 1;
+    const jwt = await this.userService.createToken(user.email, loginType, jti);
+    user.jti = jti;
+    user.jwt = jwt;
     done(null, user);
   }
 }

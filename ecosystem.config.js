@@ -13,6 +13,9 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
       },
+      env_stage: {
+        NODE_ENV: 'stage',
+      },
     },
   ],
 };

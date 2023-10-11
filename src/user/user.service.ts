@@ -24,7 +24,7 @@ export class UserService {
   ) {}
 
   async socialLogin(loginData: any) {
-    const result = await this.dataSource.transaction(async (manager) => {
+    const token = await this.dataSource.transaction(async (manager) => {
       const existedUser = await this.checkUserID(loginData.email);
 
       if (existedUser && existedUser.login_type === 1) {
@@ -33,7 +33,9 @@ export class UserService {
             user: { user_no: existedUser.user_no },
           },
         });
-        return existedSocialLogin.access_token;
+        existedSocialLogin.jti = loginData.jti;
+        await manager.save(existedSocialLogin);
+        return loginData.jwt;
       } else if (existedUser && existedUser.login_type === 0) {
         throw new InternalServerErrorException('해당 Email은 이미 다른 로그인 방식으로 가입되어 있습니다.');
       }
@@ -47,15 +49,15 @@ export class UserService {
       const socialLogin = new SocialLogin();
       socialLogin.social_code = getSocialCode(loginData.provider);
       socialLogin.external_id = loginData.id;
-      socialLogin.access_token = loginData.accessToken;
+      socialLogin.jti = loginData.jti;
       socialLogin.user = createdUser;
 
-      const createdSocialLogin = await manager.save(socialLogin);
+      await manager.save(socialLogin);
 
-      return createdSocialLogin.access_token;
+      return loginData.jwt;
     });
 
-    return { accessToken: result };
+    return token;
   }
 
   async login(email: string, password: string) {
@@ -72,15 +74,17 @@ export class UserService {
       },
       relations: ['user'],
     });
+
     const isValidPassword = await this.comparePasswords(password, exitedPassword.password);
-    if (isValidPassword) {
-      const jti = uuid.v4();
-      const token = await this.createToken(email, jti);
-      await this.userProfileRepository.update({ user: { user_no: user_no } }, { jti: jti });
-      return token;
-    } else {
+    if (!isValidPassword) {
       throw new InternalServerErrorException('email 또는 비밀번호가 일치하지 않습니다.');
     }
+
+    const jti = uuid.v4();
+    const loginType = 0;
+    const token = await this.createToken(email, loginType, jti);
+    await this.userProfileRepository.update({ user: { user_no: user_no } }, { jti: jti });
+    return token;
   }
 
   async checkUserID(user_name: string) {
@@ -111,8 +115,8 @@ export class UserService {
     }
   }
 
-  async createToken(email: string, jti: string) {
-    const payload = { email };
+  async createToken(email: string, loginType: number, jti: string) {
+    const payload = { email, loginType };
     return this.jwtService.sign(payload, { secret: process.env.JWT_KEY, expiresIn: '60m', jwtid: jti });
   }
 
@@ -123,17 +127,14 @@ export class UserService {
       throw new InternalServerErrorException('해당 사용자는 존재하지 않는 사용자입니다.');
     }
 
-    const userProfile = await this.userProfileRepository.findOne({
-      where: {
-        user: { user_no: user.user_no },
-      },
-    });
+    const userInfo =
+      payload.loginType === 0 ? await this.userProfileRepository.findOne({ where: { user: { user_no: user.user_no } } }) : await this.socialLoginRepository.findOne({ where: { user: { user_no: user.user_no } } });
 
-    if (!userProfile) {
-      throw new InternalServerErrorException('해당 사용자의 Profile이 존재하지 않습니다.');
+    if (!userInfo) {
+      throw new InternalServerErrorException('해당 사용자의 정보가 존재하지 않습니다.');
     }
 
-    if (payload.jti != userProfile.jti) {
+    if (payload.jti != userInfo.jti) {
       throw new UnauthorizedException('다른 기기에서 로그인 되었습니다.');
     }
 

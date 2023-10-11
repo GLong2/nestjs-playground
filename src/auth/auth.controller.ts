@@ -16,7 +16,7 @@ export class AuthController {
     if (socialType.indexOf('google') > -1) {
       // TODO
     } else if (socialType.indexOf('kakao') > -1) {
-      const redirectURL = process.env.NODE_ENV === 'production' ? 'https://hong-ground.com/api/auth/kakao/logout/callback' : 'http://localhost:3000/auth/kakao/logout/callback';
+      const redirectURL = `${process.env.BASE_PATH}/api/auth/kakao/logout/callback`;
       const kakaoLogoutUrl = `https://kauth.kakao.com/oauth/logout?client_id=${process.env.KAKAO_CLIENT_ID}&logout_redirect_uri=${redirectURL}`;
       return res.redirect(kakaoLogoutUrl);
     }
@@ -32,13 +32,11 @@ export class AuthController {
   @ApiExcludeEndpoint()
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleLoginCallback(@Req() req, @Res() res) {
-    // 구글 인증 후 콜백 처리
-    // JWT 발행 또는 다른 페이지로 리다이렉트 등
-    const result = await this.userService.socialLogin(req.user);
+  async googleLoginCallback(@Req() req) {
     // res.cookie('auth_token', result.accessToken, { httpOnly: true, secure: true });
-    const redirectURL = process.env.NODE_ENV === 'production' ? `https://hong-ground.com/social?token=${result.accessToken}&redirect=home` : `http://localhost:4000/social?token=${result.accessToken}&redirect=home`;
-    return res.redirect(redirectURL);
+    // const redirectURL = process.env.NODE_ENV === 'production' ? `https://hong-ground.com/social?token=${accessToken}&redirect=home` : `http://localhost:4000/social?token=${accessToken}&redirect=home`;
+    const accessToken = await this.userService.socialLogin(req.user);
+    return { accessToken };
   }
 
   @ApiExcludeEndpoint()
@@ -51,19 +49,17 @@ export class AuthController {
   @ApiExcludeEndpoint()
   @Get('kakao/callback')
   @UseGuards(AuthGuard('kakao'))
-  async kakaoLoginCallback(@Req() req, @Res() res) {
-    // 로그인 성공 후의 동작
-    // 예를 들어: 토큰 발급 및 리다이렉트
-    const result = await this.userService.socialLogin(req.user);
+  async kakaoLoginCallback(@Req() req) {
     // res.cookie('auth_token', result.accessToken, { httpOnly: true, secure: true });
-    const redirectURL = process.env.NODE_ENV === 'production' ? `https://hong-ground.com/social?token=${result.accessToken}&redirect=home` : `http://localhost:4000/social?token=${result.accessToken}&redirect=home`;
-    return res.redirect(redirectURL);
+    // const redirectURL = process.env.NODE_ENV === 'production' ? `https://hong-ground.com/social?token=${result.accessToken}&redirect=home` : `http://localhost:4000/social?token=${result.accessToken}&redirect=home`;
+    const accessToken = await this.userService.socialLogin(req.user);
+    return { accessToken };
   }
 
   @ApiExcludeEndpoint()
   @Get('kakao/logout/callback')
   kakaoLogoutCallback(@Req() req, @Res() res) {
-    const redirectURL = process.env.NODE_ENV === 'production' ? `https://hong-ground.com/` : `http://localhost:4000/`;
+    const redirectURL = `${process.env.BASE_PATH}`;
     return res.redirect(redirectURL);
   }
 
