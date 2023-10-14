@@ -9,6 +9,7 @@ import { NotionModule } from './notion/notion.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { NotFoundExceptionFilter } from './filter/not-found-exception.filter';
+import { RedisIoAdapter } from './adapters/redis-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -17,10 +18,11 @@ async function bootstrap() {
     }),
   });
 
+  app.enableCors(); // CORS 활성화
+  app.setGlobalPrefix('api'); // 전역 접두사 설정
   app.useGlobalFilters(new NotFoundExceptionFilter());
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  app.setGlobalPrefix('api'); // 전역 접두사 설정
-  app.enableCors(); // CORS 활성화
+  app.useWebSocketAdapter(new RedisIoAdapter(app));
 
   // "public" 폴더에서 정적 파일을 제공
   app.use('/', express.static('public'));

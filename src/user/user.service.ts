@@ -11,13 +11,14 @@ import { UserPassword } from './entities/user-password.entity';
 import * as uuid from 'uuid';
 import { UserProfile } from './entities/user-profile.entity';
 import { SignUpDto } from 'src/auth/dto/sign-up.dto';
+import { LogInDto } from 'src/auth/dto/login.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     @InjectRepository(SocialLogin) private readonly socialLoginRepository: Repository<SocialLogin>,
-    @InjectRepository(UserPassword) private readonly passwordRepository: Repository<UserPassword>,
+    @InjectRepository(UserPassword) private readonly userPasswordRepository: Repository<UserPassword>,
     @InjectRepository(UserProfile) private readonly userProfileRepository: Repository<UserProfile>,
     private dataSource: DataSource,
     private readonly jwtService: JwtService,
@@ -60,29 +61,29 @@ export class UserService {
     return token;
   }
 
-  async login(email: string, password: string) {
-    const user = await this.checkUserID(email);
+  async login(loginDto: LogInDto) {
+    const user = await this.checkUserID(loginDto.email);
 
     if (!user) {
       throw new InternalServerErrorException('해당 사용자는 존재하지 않는 사용자입니다.');
     }
 
     const user_no = user.user_no;
-    const exitedPassword = await this.passwordRepository.findOne({
+    const exitedUserPassword = await this.userPasswordRepository.findOne({
       where: {
         user: { user_no: user_no },
       },
       relations: ['user'],
     });
 
-    const isValidPassword = await this.comparePasswords(password, exitedPassword.password);
+    const isValidPassword = await this.comparePasswords(loginDto.password, exitedUserPassword.password);
     if (!isValidPassword) {
       throw new InternalServerErrorException('email 또는 비밀번호가 일치하지 않습니다.');
     }
 
     const jti = uuid.v4();
     const loginType = 0;
-    const token = await this.createToken(email, loginType, jti);
+    const token = await this.createToken(loginDto.email, loginType, jti);
     await this.userProfileRepository.update({ user: { user_no: user_no } }, { jti: jti });
     return token;
   }

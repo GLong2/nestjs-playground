@@ -70,8 +70,8 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() LoginDto: LogInDto) {
-    const accessToken = await this.userService.login(LoginDto.email, LoginDto.password);
+  async login(@Body() loginDto: LogInDto) {
+    const accessToken = await this.userService.login(loginDto);
     return { accessToken };
   }
 }

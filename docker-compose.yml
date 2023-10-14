@@ -37,7 +37,21 @@ services:
     depends_on: # 해당 서비스가 시작되기 전에 다른 서비스가 먼저 시작되어야 함을 지정
       - playground-server
 
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
 volumes:
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/redis/data
+      o: bind
   volume-initdb:
     driver: local
     driver_opts:
