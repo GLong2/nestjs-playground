@@ -1,13 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Sse } from '@nestjs/common';
 import { NotionService } from './notion.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto ';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
+import { Observable } from 'rxjs';
 
 @ApiTags('notion')
 @Controller('notion')
 export class NotionController {
   constructor(private readonly notionService: NotionService) {}
+
+  @ApiExcludeEndpoint()
+  @Get('employee/sse')
+  @Sse()
+  sseEmployee(): Observable<any> {
+    return this.notionService.sseEmployee();
+  }
 
   @Get('employee/get')
   async selectEmployee() {

@@ -1,16 +1,29 @@
-import { Inject, Injectable, LoggerService } from '@nestjs/common';
+import { Inject, Injectable, LoggerService, OnModuleInit } from '@nestjs/common';
 import { Client } from '@notionhq/client';
 import { numberProperty, richTextProperty, titleProperty } from './helpers/properties.helper';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto ';
 import { transformData } from './helpers/objectConvertor.helper';
+import { Observable, Subject, mergeMap } from 'rxjs';
 
 @Injectable()
-export class NotionService {
+export class NotionService implements OnModuleInit {
   constructor(@Inject('NotionServiceLogger') private readonly logger: LoggerService) {}
 
   private notion = new Client({ auth: process.env.NOTION_TOKEN });
   private readonly databaseId = process.env.NOTION_DATABASE_ID;
+  private employee$: Subject<any> = new Subject();
+
+  async onModuleInit() {}
+
+  sseEmployee(): Observable<any> {
+    return this.employee$.pipe(
+      mergeMap(async (_) => {
+        const employee = await this.selectEmployee();
+        return { data: { employee } };
+      }),
+    );
+  }
 
   async selectEmployee(): Promise<any> {
     try {
@@ -41,6 +54,7 @@ export class NotionService {
         parent: { database_id: this.databaseId },
         properties: employee,
       });
+      this.employee$.next(null);
       return response.results;
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -76,6 +90,7 @@ export class NotionService {
         page_id: id,
         properties: employee,
       });
+      this.employee$.next(null);
       return response.results;
     } catch (error) {
       this.logger.error(error, error.stack);
@@ -86,6 +101,7 @@ export class NotionService {
   async removeEmployee(id: string): Promise<any> {
     try {
       const response: any = await this.notion.pages.update({ page_id: id, archived: true });
+      this.employee$.next(null);
       return response.results;
     } catch (error) {
       this.logger.error(error, error.stack);

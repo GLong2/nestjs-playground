@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChatGateway } from './chat/chat.gateway';
+import { SseModule } from './sse/sse.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ChatGateway } from './chat/chat.gateway';
     TaskModule,
     AuthModule,
     UserModule,
+    SseModule,
   ],
   controllers: [],
   providers: [ChatGateway],
