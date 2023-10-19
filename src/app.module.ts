@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { LoggingModule } from './interceptors/logging/logging.module';
 import { NotionModule } from './notion/notion.module';
@@ -9,6 +9,9 @@ import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChatGateway } from './chat/chat.gateway';
 import { SseModule } from './sse/sse.module';
+import { PrometheusMiddleware } from './middleware/prometheus.middleware';
+import { PrometheusService } from './prometheus/prometheus.service';
+import { PrometheusController } from './prometheus/prometheus.controller';
 
 @Module({
   imports: [
@@ -40,7 +43,18 @@ import { SseModule } from './sse/sse.module';
     UserModule,
     SseModule,
   ],
-  controllers: [],
-  providers: [ChatGateway],
+  controllers: [PrometheusController],
+  providers: [ChatGateway, PrometheusService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(PrometheusMiddleware)
+      .exclude(
+        { path: '/auth', method: RequestMethod.ALL },
+        { path: '/metrics', method: RequestMethod.ALL },
+        // 경로를 추가하여 제외
+      )
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}
