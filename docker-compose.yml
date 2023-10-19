@@ -66,15 +66,13 @@ services:
       - "9090:9090"
     networks:
       - playground-network
-
+  
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     env_file: ./src/config/env/.production.env
     volumes:
       - grafana-data:/var/lib/grafana
-    ports:
-      - "3001:3000"
     networks:
       - playground-network
 
