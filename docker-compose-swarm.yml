@@ -25,6 +25,9 @@ services:
         max_failure_ratio: 0.3
       restart_policy:
         condition: on-failure
+      placement:
+        constraints:
+          - node.labels.role == worker
 
   database:
     container_name: database
@@ -42,6 +45,9 @@ services:
       - playground-network
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.role == manager
 
   nginx:
     container_name: nginx
@@ -58,6 +64,9 @@ services:
       - playground-network
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.role == manager
 
   redis:
     container_name: redis
@@ -70,6 +79,9 @@ services:
       - playground-network
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.role == manager
 
   prometheus:
     image: prom/prometheus:latest
@@ -84,6 +96,9 @@ services:
       - playground-network
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.role == manager
   
   grafana:
     image: grafana/grafana:latest
@@ -95,6 +110,9 @@ services:
       - playground-network
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.role == manager
 
 volumes:
   redis_data:
