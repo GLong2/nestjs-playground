@@ -1,0 +1,134 @@
+version: '3'
+
+services:
+  playground-server: # Docker Compose 내에서 서비스 이름은 DNS 이름으로 동작
+    container_name: playground-server
+    image: playground-server:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - 3000
+    depends_on:
+      - database
+      - prometheus
+      - grafana
+    networks:
+      - playground-network
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        monitor: 10s
+        max_failure_ratio: 0.3
+      restart_policy:
+        condition: on-failure
+
+  database:
+    container_name: database
+    image: mariadb:latest
+    ports:
+      - "3306:3306"
+    volumes:
+      - volume-db-data:/var/lib/mysql
+      - volume-db-config:/etc/mysql/conf.d
+      - volume-initdb:/docker-entrypoint-initdb.d
+    environment:
+      TZ: Asia/Seoul
+    env_file: ./src/config/env/.stage.env
+    networks:
+      - playground-network
+    deploy:
+      replicas: 1
+
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - /etc/letsencrypt/:/etc/letsencrypt/  # 이 경로를 마운트
+    depends_on: # 해당 서비스가 시작되기 전에 다른 서비스가 먼저 시작되어야 함을 지정
+      - playground-server
+    networks:
+      - playground-network
+    deploy:
+      replicas: 1
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - playground-network
+    deploy:
+      replicas: 1
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    networks:
+      - playground-network
+    deploy:
+      replicas: 1
+  
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    env_file: ./src/config/env/.stage.env
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - playground-network
+    deploy:
+      replicas: 1
+
+volumes:
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/redis/data
+      o: bind
+  volume-initdb:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/mariaDB/initdb.d
+      o: bind
+  volume-db-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/mariaDB/data
+      o: bind
+  volume-db-config:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/mariaDB/conf.d
+      o: bind
+  grafana-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/grafana/data
+      o: bind
+
+networks:
+  playground-network:
+    driver: overlay # overlay 네트워크는 Docker Swarm 모드에서 여러 Docker 데몬이 서로 통신할 수 있게 해주며, Swarm 서비스의 태스크들이 서로 다른 노드에서 실행되더라도 서로 통신함
+    # driver: bridge # bridge 네트워크는 단일 Docker 호스트 내에서 컨테이너들을 연결하는 데 사용
