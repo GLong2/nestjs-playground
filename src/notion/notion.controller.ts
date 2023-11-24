@@ -17,6 +17,11 @@ export class NotionController {
     return this.notionService.sseEmployee();
   }
 
+  @Get('employee/random-error')
+  async randomError() {
+    return await this.notionService.randomError();
+  }
+
   @Get('employee/get')
   async selectEmployee() {
     return await this.notionService.selectEmployee();

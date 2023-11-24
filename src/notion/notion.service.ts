@@ -1,4 +1,4 @@
-import { Inject, Injectable, LoggerService, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, LoggerService, OnModuleInit } from '@nestjs/common';
 import { Client } from '@notionhq/client';
 import { numberProperty, richTextProperty, titleProperty } from './helpers/properties.helper';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -15,6 +15,21 @@ export class NotionService implements OnModuleInit {
   private employee$: Subject<any> = new Subject();
 
   async onModuleInit() {}
+
+  async randomError(): Promise<any> {
+    // 현재 시간을 가져와 홀수 일 경우 true를 아닐경우 false를 반환하는 함수
+    const date = new Date();
+    const seconds = date.getSeconds();
+    if (seconds % 2 === 1) {
+      throw new InternalServerErrorException('해당 에러는 의도된 에러 입니다.');
+    } else {
+      const response: any = await this.notion.databases.query({
+        database_id: this.databaseId,
+      });
+      const outputData = transformData(response.results);
+      return outputData;
+    }
+  }
 
   sseEmployee(): Observable<any> {
     return this.employee$.pipe(
