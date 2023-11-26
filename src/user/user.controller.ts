@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { CheckEmailDto } from './dto/login.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -10,10 +11,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('checkEmail')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
-  checkEmail(@Body() body) {
-    return this.userService.checkEmail(body.email);
+  checkEmail(@Body() checkEmailDto: CheckEmailDto) {
+    return this.userService.checkEmail(checkEmailDto.email);
   }
 
   @Get()

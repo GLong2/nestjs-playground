@@ -110,7 +110,7 @@ export class UserService {
     });
 
     if (!user) {
-      return null;
+      return '사용 가능한 email입니다.';
     } else {
       throw new InternalServerErrorException('해당 email은 이미 존재하는 email입니다.');
     }
